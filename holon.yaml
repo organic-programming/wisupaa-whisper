@@ -1,4 +1,34 @@
+# ── Identity ──────────────────────────────────────────
 schema: holon/v0
+uuid: "c7a1e0f3-5b2d-4e8a-9f6c-3d1a7b4e2c8f"
+given_name: Wisupaa
+family_name: Whisper
+motto: Every sound becomes data.
+composer: B. ALTER
+clade: probabilistic/perceptual
+status: draft
+born: "2026-03-02"
+
+# ── Lineage ───────────────────────────────────────────
+parents: []
+reproduction: assisted
+generated_by: codex
+
+# ── Description ───────────────────────────────────────
+description: |
+  General-purpose whisper.cpp holon. Exposes the full whisper.cpp feature
+  set (transcription, language detection, token-level timestamps, VAD,
+  model introspection) as JSON-RPC services over the `cpp-holons` SDK
+  transport layer.
+  
+  This is a **probabilistic/perceptual** holon — downstream holons compose
+  its RPCs to build specialized pipelines (alignment, live transcription, etc.).
+
+# ── Contract ──────────────────────────────────────────
+contract:
+  service: whisper.v1.Whisper
+
+# ── Operational ───────────────────────────────────────
 kind: native
 platforms: [darwin, linux]
 build:
@@ -7,4 +37,4 @@ requires:
   commands: [cmake, ctest]
   files: [CMakeLists.txt]
 artifacts:
-  binary: .op/build/bin/wisupaa-whisper
+  binary: wisupaa-whisper
