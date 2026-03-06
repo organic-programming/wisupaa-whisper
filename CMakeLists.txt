@@ -4,6 +4,8 @@ project(wisupaa-whisper LANGUAGES CXX)
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
+enable_testing()
+
 # whisper.cpp engine
 add_subdirectory(third_party/whisper.cpp)
 
@@ -43,6 +45,8 @@ if(NLOHMANN_JSON_INCLUDE_DIR)
     target_include_directories(test_whisper_service PRIVATE ${NLOHMANN_JSON_INCLUDE_DIR})
 endif()
 target_link_libraries(test_whisper_service PRIVATE whisper_service whisper)
+add_test(NAME whisper_service COMMAND test_whisper_service)
+set_tests_properties(whisper_service PROPERTIES WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR})
 
 # Link Winsock on Windows (required by cpp-holons SDK).
 if(WIN32)

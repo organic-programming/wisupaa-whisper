@@ -1,0 +1,10 @@
+schema: holon/v0
+kind: native
+platforms: [darwin, linux]
+build:
+  runner: cmake
+requires:
+  commands: [cmake, ctest]
+  files: [CMakeLists.txt]
+artifacts:
+  binary: .op/build/bin/wisupaa-whisper

@@ -13,12 +13,8 @@ born: "2026-03-02"
 parents: []
 reproduction: "assisted"
 
-# Optional
-aliases: []
-
 # Metadata
 generated_by: "codex"
-lang: "cpp"
 proto_status: defined
 ---
 
