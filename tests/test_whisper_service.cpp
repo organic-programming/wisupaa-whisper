@@ -10,8 +10,11 @@
 
 namespace {
 
-std::filesystem::path find_holon_path() {
+std::filesystem::path find_manifest_path() {
     const std::filesystem::path candidates[] = {
+        "holon.yaml",
+        "../holon.yaml",
+        "../../holon.yaml",
         "HOLON.md",
         "../HOLON.md",
         "../../HOLON.md",
@@ -23,7 +26,7 @@ std::filesystem::path find_holon_path() {
         }
     }
 
-    return "HOLON.md";
+    return "holon.yaml";
 }
 
 }  // namespace
@@ -69,7 +72,7 @@ int main() {
     ASSERT(empty_vad.speech_detected == false);
     ASSERT(empty_vad.segments.empty());
 
-    const auto holon = holons::parse_holon(find_holon_path().string());
+    const auto holon = holons::parse_holon(find_manifest_path().string());
     ASSERT(!holon.uuid.empty());
     ASSERT(holon.given_name == "Wisupaa");
     ASSERT(holon.family_name == "Whisper");

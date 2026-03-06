@@ -6,6 +6,7 @@
 #include <cerrno>
 #include <cstdint>
 #include <cstring>
+#include <filesystem>
 #include <iostream>
 #include <stdexcept>
 #include <string>
@@ -15,6 +16,25 @@
 using json = nlohmann::json;
 
 namespace {
+
+std::filesystem::path find_manifest_path() {
+    const std::filesystem::path candidates[] = {
+        "holon.yaml",
+        "../holon.yaml",
+        "../../holon.yaml",
+        "HOLON.md",
+        "../HOLON.md",
+        "../../HOLON.md",
+    };
+
+    for (const auto& candidate : candidates) {
+        if (std::filesystem::exists(candidate)) {
+            return candidate;
+        }
+    }
+
+    return "holon.yaml";
+}
 
 std::vector<std::uint8_t> base64_decode(const std::string& input) {
     static const int kTable[256] = {
@@ -351,7 +371,7 @@ json handle_request(const json& request) {
 
 int main(int argc, char* argv[]) {
     try {
-        auto identity = holons::parse_holon("HOLON.md");
+        auto identity = holons::parse_holon(find_manifest_path().string());
         std::cerr << "[" << identity.given_name << " " << identity.family_name << "] "
                   << identity.motto << std::endl;
 
