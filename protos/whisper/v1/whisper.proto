@@ -2,52 +2,125 @@ syntax = "proto3";
 package whisper.v1;
 
 service Whisper {
-  // Full transcription pipeline: audio → segments with token-level detail.
+  // Full transcription pipeline: audio to segments with token-level detail.
+  // @example {"audio":"AAAAAA==","model_path":"models/ggml-base.bin","language":"fr","token_timestamps":true}
   rpc Transcribe(TranscribeRequest) returns (TranscribeResponse);
 
   // Detect the spoken language from the audio.
+  // @example {"audio":"AAAAAA==","model_path":"models/ggml-base.bin","offset_ms":0}
   rpc DetectLanguage(DetectLanguageRequest) returns (DetectLanguageResponse);
 
   // Return model metadata and capabilities.
+  // @example {"model_path":"models/ggml-base.bin"}
   rpc GetModelInfo(GetModelInfoRequest) returns (GetModelInfoResponse);
 
   // Voice Activity Detection on raw audio.
+  // @example {"audio":"AAAAAA==","vad_model_path":"models/ggml-silero-v5.1.2.bin","threshold":0.5}
   rpc DetectVAD(DetectVADRequest) returns (DetectVADResponse);
 
   // Return whisper.cpp version and system info.
+  // @example {}
   rpc GetVersion(GetVersionRequest) returns (GetVersionResponse);
 }
 
 // --- Transcribe ---
 
 message TranscribeRequest {
-  bytes audio = 1;              // PCM float32 LE, 16 kHz, mono
-  string model_path = 2;       // Path to the .bin model file
+  // PCM float32 little-endian audio sampled at 16 kHz mono.
+  // @required
+  // @example "AAAAAA=="
+  bytes audio = 1;
 
-  // Decoding params (all optional — defaults to whisper_full_default_params GREEDY)
-  string language = 3;         // BCP-47 or "" for auto-detect
-  bool translate = 4;          // Translate to English
-  bool token_timestamps = 5;   // Enable token-level timestamps
-  bool single_segment = 6;     // Force single-segment output (streaming)
-  bool no_context = 7;         // Disable past-transcription context
-  int32 offset_ms = 8;         // Start offset in ms
-  int32 duration_ms = 9;       // Duration to process (0 = all)
-  int32 max_len = 10;          // Max segment length in characters (0 = no limit)
-  int32 max_tokens = 11;       // Max tokens per segment (0 = no limit)
-  bool split_on_word = 12;     // Split on word boundary (with max_len)
-  float temperature = 13;      // Decoding temperature (0.0 = greedy)
-  int32 beam_size = 14;        // Beam size (0 = greedy, >0 = beam search)
-  int32 best_of = 15;          // Best-of for greedy sampling
-  string initial_prompt = 16;  // Prompt text prepended to decoder
-  bool suppress_blank = 17;    // Suppress blank outputs
-  bool suppress_nst = 18;      // Suppress non-speech tokens
-  int32 n_threads = 19;        // Number of threads (0 = auto)
-  bool tdrz_enable = 20;       // Enable tinydiarize speaker turn detection
-  string suppress_regex = 21;  // Regex to suppress matching tokens
+  // Path to the whisper model file on disk.
+  // @required
+  // @example "models/ggml-base.bin"
+  string model_path = 2;
+
+  // BCP-47 language code or empty string to auto-detect.
+  // @example "fr"
+  string language = 3;
+
+  // Translate the result to English.
+  // @example false
+  bool translate = 4;
+
+  // Include token-level timestamps in the response.
+  // @example true
+  bool token_timestamps = 5;
+
+  // Force a single output segment for streaming-style use.
+  // @example false
+  bool single_segment = 6;
+
+  // Disable past-transcription context.
+  // @example true
+  bool no_context = 7;
+
+  // Start offset in milliseconds.
+  // @example 30000
+  int32 offset_ms = 8;
+
+  // Duration to process in milliseconds. Use 0 for the full buffer.
+  // @example 15000
+  int32 duration_ms = 9;
+
+  // Maximum segment length in characters. Use 0 for no limit.
+  // @example 42
+  int32 max_len = 10;
+
+  // Maximum tokens per segment. Use 0 for no limit.
+  // @example 96
+  int32 max_tokens = 11;
+
+  // Split segments on word boundaries when `max_len` is set.
+  // @example true
+  bool split_on_word = 12;
+
+  // Decoder temperature. Use 0.0 for greedy decoding.
+  // @example 0.2
+  float temperature = 13;
+
+  // Beam size. Use 0 for greedy decoding.
+  // @example 5
+  int32 beam_size = 14;
+
+  // Best-of value for greedy sampling.
+  // @example 3
+  int32 best_of = 15;
+
+  // Prompt text prepended to the decoder context.
+  // @example "Interview about climate policy."
+  string initial_prompt = 16;
+
+  // Suppress blank outputs.
+  // @example true
+  bool suppress_blank = 17;
+
+  // Suppress non-speech tokens.
+  // @example true
+  bool suppress_nst = 18;
+
+  // Number of decoding threads. Use 0 for automatic selection.
+  // @example 8
+  int32 n_threads = 19;
+
+  // Enable tinydiarize speaker-turn detection.
+  // @example true
+  bool tdrz_enable = 20;
+
+  // Regex used to suppress matching tokens.
+  // @example "\\[MUSIC\\]"
+  string suppress_regex = 21;
 
   // VAD pre-filtering
-  bool vad_enabled = 22;       // Enable VAD before transcription
-  string vad_model_path = 23;  // Path to VAD model file
+
+  // Enable VAD before transcription.
+  // @example true
+  bool vad_enabled = 22;
+
+  // Path to the VAD model file.
+  // @example "models/ggml-silero-v5.1.2.bin"
+  string vad_model_path = 23;
 }
 
 message TranscribeResponse {
@@ -88,9 +161,22 @@ message Timings {
 // --- DetectLanguage ---
 
 message DetectLanguageRequest {
+  // PCM float32 little-endian audio sampled at 16 kHz mono.
+  // @required
+  // @example "AAAAAA=="
   bytes audio = 1;
+
+  // Path to the whisper model file on disk.
+  // @required
+  // @example "models/ggml-base.bin"
   string model_path = 2;
+
+  // Start offset in milliseconds.
+  // @example 0
   int32 offset_ms = 3;
+
+  // Number of decoding threads. Use 0 for automatic selection.
+  // @example 4
   int32 n_threads = 4;
 }
 
@@ -107,6 +193,9 @@ message LanguageProb {
 // --- GetModelInfo ---
 
 message GetModelInfoRequest {
+  // Path to the whisper model file on disk.
+  // @required
+  // @example "models/ggml-base.bin"
   string model_path = 1;
 }
 
@@ -129,12 +218,34 @@ message GetModelInfoResponse {
 // --- DetectVAD ---
 
 message DetectVADRequest {
+  // PCM float32 little-endian audio sampled at 16 kHz mono.
+  // @required
+  // @example "AAAAAA=="
   bytes audio = 1;
+
+  // Path to the VAD model file on disk.
+  // @required
+  // @example "models/ggml-silero-v5.1.2.bin"
   string vad_model_path = 2;
+
+  // Threshold used by the VAD detector.
+  // @example 0.5
   float threshold = 3;
+
+  // Minimum speech duration in milliseconds.
+  // @example 250
   int32 min_speech_duration_ms = 4;
+
+  // Minimum silence duration in milliseconds.
+  // @example 200
   int32 min_silence_duration_ms = 5;
+
+  // Maximum speech duration in seconds.
+  // @example 30.0
   float max_speech_duration_s = 6;
+
+  // Padding applied around detected speech in milliseconds.
+  // @example 150
   int32 speech_pad_ms = 7;
 }
 

@@ -23,6 +23,23 @@ description: |
   
   This is a **probabilistic/perceptual** holon — downstream holons compose
   its RPCs to build specialized pipelines (alignment, live transcription, etc.).
+skills:
+  - name: transcribe-with-vad
+    description: Produce timed transcription segments from raw PCM with optional VAD pre-filtering.
+    when: User wants a local whisper.cpp run with timestamps and better handling of silence.
+    steps:
+      - Inspect the selected model with `GetModelInfo`
+      - Probe speech regions with `DetectVAD` when the input contains silence
+      - Detect or confirm the language with `DetectLanguage`
+      - Run `Transcribe` with timestamps and decoder settings tuned for the job
+  - name: inspect-model-and-language
+    description: Validate runtime capabilities, model metadata, and detected language before a heavier run.
+    when: User wants to confirm the local whisper.cpp setup before processing production audio.
+    steps:
+      - Check runtime details with `GetVersion`
+      - Inspect model capabilities with `GetModelInfo`
+      - Run `DetectLanguage` on a representative sample
+      - Use the detected language to seed the next `Transcribe` call
 
 # ── Contract ──────────────────────────────────────────
 contract:
